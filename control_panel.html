@@ -9,40 +9,27 @@
 <script src="https://accounts.google.com/gsi/client" async defer></script>
 <style>
   :root{
-    --canvas:#F6F3EC;
-    --ink:#23291F;
-    --ink-soft:#5B6154;
-    --sage:#4F6B4A;
-    --sage-dark:#374A34;
-    --terracotta:#BE6A4D;
-    --terracotta-dark:#9A5238;
-    --mustard:#C68A2E;
-    --line:#DDD6C7;
-    --card:#FFFDF8;
-    --white:#FFFFFF;
-    --font-voice:'Fraunces', Georgia, serif;
-    --font-sans:'IBM Plex Sans', -apple-system, sans-serif;
-    --font-mono:'IBM Plex Mono', monospace;
+    --canvas:#F6F3EC; --ink:#23291F; --ink-soft:#5B6154; --sage:#4F6B4A; --sage-dark:#374A34;
+    --terracotta:#BE6A4D; --terracotta-dark:#9A5238; --mustard:#C68A2E; --line:#DDD6C7;
+    --card:#FFFDF8; --white:#FFFFFF;
+    --font-voice:'Fraunces', Georgia, serif; --font-sans:'IBM Plex Sans', -apple-system, sans-serif; --font-mono:'IBM Plex Mono', monospace;
   }
   *{box-sizing:border-box;}
   body{margin:0;background:var(--canvas);color:var(--ink);font-family:var(--font-sans);-webkit-font-smoothing:antialiased;}
   .app{max-width:1080px;margin:0 auto;padding:0 32px 80px;}
-
-  header{display:flex;align-items:center;justify-content:space-between;padding:32px 0 24px;}
+  header{display:flex;align-items:center;justify-content:space-between;padding:32px 0 24px;flex-wrap:wrap;gap:12px;}
   .wordmark{font-family:var(--font-voice);font-weight:600;font-size:22px;letter-spacing:-0.01em;display:flex;align-items:center;gap:10px;}
   .wordmark .dot{width:9px;height:9px;border-radius:50%;background:var(--terracotta);display:inline-block;}
   .wordmark .sub{font-family:var(--font-mono);font-size:11px;color:var(--ink-soft);text-transform:uppercase;letter-spacing:0.08em;margin-left:4px;}
   .header-right{display:flex;align-items:center;gap:16px;}
   nav{display:flex;gap:4px;background:var(--line);padding:4px;border-radius:10px;}
-  nav button{font-family:var(--font-sans);font-weight:500;font-size:13px;padding:8px 18px;border:none;background:transparent;color:var(--ink-soft);border-radius:7px;cursor:pointer;transition:background .15s ease, color .15s ease;}
+  nav button{font-family:var(--font-sans);font-weight:500;font-size:13px;padding:8px 16px;border:none;background:transparent;color:var(--ink-soft);border-radius:7px;cursor:pointer;transition:background .15s ease, color .15s ease;}
   nav button.active{background:var(--white);color:var(--ink);box-shadow:0 1px 2px rgba(0,0,0,0.06);}
   .account-chip{display:flex;align-items:center;gap:8px;font-family:var(--font-mono);font-size:11.5px;color:var(--ink-soft);}
   .account-chip button{font-family:var(--font-sans);font-size:11.5px;color:var(--terracotta-dark);background:none;border:none;cursor:pointer;text-decoration:underline;padding:0;}
-
   .section-head{display:flex;align-items:baseline;justify-content:space-between;margin:8px 0 24px;border-bottom:1px solid var(--line);padding-bottom:16px;}
   .section-head h1{font-family:var(--font-voice);font-weight:500;font-size:26px;margin:0;}
   .section-head .count{font-family:var(--font-mono);font-size:12px;color:var(--ink-soft);}
-
   .queue{display:grid;grid-template-columns:repeat(auto-fill, minmax(320px, 1fr));gap:20px;}
   .tag-card{background:var(--card);border:1px solid var(--line);border-radius:4px;position:relative;overflow:hidden;}
   .tag-notch{position:absolute;top:14px;left:14px;width:11px;height:11px;border-radius:50%;background:var(--canvas);border:1px solid var(--line);}
@@ -53,6 +40,7 @@
   .status-ready{background:#EAF1E8;color:var(--sage-dark);}
   .status-published{background:#F3E7DF;color:var(--terracotta-dark);}
   .status-scheduled{background:#F2E9D4;color:#7A5A17;}
+  .status-draft{background:#EDEAE2;color:var(--ink-soft);}
   .stitch{border-top:1.5px dashed var(--line);margin:0 18px;}
   .tag-body{padding:14px 18px 18px;}
   .thumb-row{display:flex;gap:12px;margin-bottom:12px;}
@@ -62,19 +50,21 @@
   .caption-preview{font-size:13px;line-height:1.5;color:var(--ink);display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden;}
   .caption-edit{width:100%;font-family:var(--font-sans);font-size:13px;line-height:1.5;color:var(--ink);border:1px solid var(--line);border-radius:6px;padding:8px 10px;resize:vertical;min-height:64px;background:var(--white);}
   .caption-edit:focus{outline:none;border-color:var(--sage);}
-  .tag-actions{display:flex;gap:8px;margin-top:14px;flex-wrap:wrap;}
-  .btn{font-family:var(--font-sans);font-weight:500;font-size:12.5px;padding:9px 14px;border-radius:6px;border:1px solid var(--line);background:var(--white);color:var(--ink);cursor:pointer;display:flex;align-items:center;gap:6px;transition:transform .1s ease, background .15s ease;}
+  .tag-actions{display:flex;gap:6px;margin-top:14px;flex-wrap:wrap;}
+  .btn{font-family:var(--font-sans);font-weight:500;font-size:12px;padding:8px 12px;border-radius:6px;border:1px solid var(--line);background:var(--white);color:var(--ink);cursor:pointer;display:flex;align-items:center;gap:6px;transition:transform .1s ease, background .15s ease;}
   .btn:active{transform:scale(0.97);}
-  .btn-publish{background:var(--terracotta);color:#fff;border-color:var(--terracotta);flex:1;justify-content:center;min-width:120px;}
+  .btn-publish{background:var(--terracotta);color:#fff;border-color:var(--terracotta);flex:1;justify-content:center;min-width:110px;}
   .btn-publish:hover{background:var(--terracotta-dark);}
   .btn-publish[disabled]{background:var(--sage);border-color:var(--sage);cursor:default;opacity:0.9;}
   .btn-ghost{background:transparent;}
   .btn-ghost:hover{background:var(--canvas);}
+  .btn-secondary{background:var(--white);border-color:var(--sage);color:var(--sage-dark);}
+  .btn-secondary:hover{background:#EAF1E8;}
   .icon{font-family:var(--font-sans);font-size:14px;line-height:1;}
-  .schedule-row{display:none;gap:8px;margin-top:8px;align-items:center;}
+  .schedule-row{display:none;gap:8px;margin-top:8px;align-items:center;flex-wrap:wrap;}
   .schedule-row.open{display:flex;}
-  .schedule-row input{font-family:var(--font-sans);font-size:12px;padding:7px 8px;border:1px solid var(--line);border-radius:6px;flex:1;}
-
+  .schedule-row input{font-family:var(--font-sans);font-size:12px;padding:7px 8px;border:1px solid var(--line);border-radius:6px;flex:1;min-width:150px;}
+  .regen-row{display:flex;gap:6px;margin-top:8px;}
   .form-wrap{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:32px;max-width:600px;}
   .field{margin-bottom:18px;}
   .field label{display:block;font-family:var(--font-mono);font-size:11px;text-transform:uppercase;letter-spacing:0.06em;color:var(--ink-soft);margin-bottom:7px;}
@@ -85,8 +75,10 @@
   .upload-box:hover{border-color:var(--sage);}
   .btn-generate{width:100%;background:var(--sage);color:#fff;border-color:var(--sage);justify-content:center;padding:12px;font-size:13.5px;margin-top:6px;}
   .btn-generate:hover{background:var(--sage-dark);}
-
-  /* Pill choice groups */
+  .btn-row{display:flex;gap:10px;margin-top:6px;}
+  .btn-row .btn-generate{margin-top:0;}
+  .btn-draft{flex:1;background:var(--white);border-color:var(--line);color:var(--ink-soft);justify-content:center;padding:12px;font-size:13.5px;}
+  .btn-draft:hover{background:var(--canvas);}
   .pill-group{display:flex;gap:8px;flex-wrap:wrap;}
   .pill{font-family:var(--font-sans);font-size:12.5px;font-weight:500;padding:8px 16px;border-radius:20px;border:1px solid var(--line);background:var(--white);color:var(--ink-soft);cursor:pointer;transition:all .12s ease;}
   .pill:hover{border-color:var(--sage);}
@@ -94,14 +86,11 @@
   .pill-hint{font-size:11px;color:var(--ink-soft);margin-top:6px;}
   .subfield{display:none;margin-top:12px;}
   .subfield.open{display:block;}
-
   #toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(20px);background:var(--ink);color:#fff;font-size:13px;font-family:var(--font-sans);padding:11px 18px;border-radius:8px;opacity:0;pointer-events:none;transition:opacity .2s ease, transform .2s ease;display:flex;align-items:center;gap:8px;max-width:420px;}
   #toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
   #toast .dot{width:6px;height:6px;border-radius:50%;background:#8FC98A;flex-shrink:0;}
-
   .view{display:none;}
   .view.active{display:block;}
-
   #signin-screen{position:fixed;inset:0;background:var(--canvas);display:flex;align-items:center;justify-content:center;z-index:1000;}
   #signin-screen.hidden{display:none;}
   .signin-box{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:44px 40px;width:100%;max-width:360px;text-align:center;}
@@ -112,10 +101,19 @@
   #main-app{display:none;}
   #main-app.unlocked{display:block;}
 
+  /* Bulk generate */
+  .bulk-row{background:var(--card);border:1px solid var(--line);border-radius:8px;padding:18px;margin-bottom:14px;position:relative;}
+  .bulk-row .remove-row{position:absolute;top:12px;right:12px;background:none;border:none;color:var(--terracotta-dark);cursor:pointer;font-size:12px;}
+  .bulk-row .field-row{grid-template-columns:1fr 1fr 1fr;}
+  .bulk-status{font-family:var(--font-mono);font-size:11px;padding:2px 8px;border-radius:12px;background:var(--line);color:var(--ink-soft);display:inline-block;margin-top:8px;}
+  .bulk-status.done{background:#EAF1E8;color:var(--sage-dark);}
+  .bulk-status.failed{background:#F3E7DF;color:var(--terracotta-dark);}
+  .bulk-status.working{background:#F2E9D4;color:#7A5A17;}
+
   @media (max-width:600px){
     .app{padding:0 16px 60px;}
     header{flex-direction:column;align-items:flex-start;gap:14px;padding-top:24px;}
-    .field-row{grid-template-columns:1fr;}
+    .field-row, .bulk-row .field-row{grid-template-columns:1fr;}
   }
 </style>
 </head>
@@ -138,6 +136,7 @@
       <nav>
         <button class="active" data-view="queue">Review queue</button>
         <button data-view="generate">Generate</button>
+        <button data-view="bulk">Bulk</button>
       </nav>
       <div class="account-chip">
         <span id="account-email"></span>
@@ -155,11 +154,8 @@
   </section>
 
   <section id="view-generate" class="view">
-    <div class="section-head">
-      <h1>Generate new content</h1>
-    </div>
+    <div class="section-head"><h1>Generate new content</h1></div>
     <div class="form-wrap">
-
       <div class="field">
         <label>What are you creating?</label>
         <div class="pill-group" id="pills-content-type">
@@ -167,7 +163,6 @@
           <button type="button" class="pill" data-value="photo">Photo</button>
         </div>
       </div>
-
       <div class="field">
         <label>Visual source</label>
         <div class="pill-group" id="pills-visual-source">
@@ -179,12 +174,10 @@
           <div class="upload-box" id="existing-media-box" onclick="document.getElementById('existing-media-input').click()">Upload your photo or video</div>
         </div>
       </div>
-
       <div class="field" id="video-options-field">
         <label>Video options</label>
         <div class="pill-group">
           <button type="button" class="pill selected" id="pill-voiceover" data-value="on">Voiceover: On</button>
-          <button type="button" class="pill" id="pill-captions-placeholder" style="display:none;"></button>
           <button type="button" class="pill selected" id="pill-captions" data-value="on">Captions: On</button>
         </div>
         <p class="pill-hint">Turning a feature off skips that generation step entirely — no credits spent on it.</p>
@@ -197,7 +190,6 @@
           </select>
         </div>
       </div>
-
       <div class="field">
         <label>Product photo</label>
         <input type="file" id="photo-input" accept="image/*" style="display:none;">
@@ -223,9 +215,39 @@
         <label>Fabric</label>
         <input type="text" id="gen-fabric" value="Pure Cotton">
       </div>
-
-      <button class="btn btn-generate" id="generate-btn" onclick="handleGenerate()">Generate content</button>
+      <div class="btn-row">
+        <button class="btn btn-draft" onclick="handleSaveDraft()">Save draft (no credits used)</button>
+        <button class="btn btn-generate" id="generate-btn" onclick="handleGenerate()" style="flex:1;">Generate content</button>
+      </div>
       <p id="generate-hint" style="font-size:11.5px;color:var(--ink-soft);margin-top:10px;text-align:center;">Takes 1-5 minutes depending on what's selected above.</p>
+    </div>
+  </section>
+
+  <section id="view-bulk" class="view">
+    <div class="section-head"><h1>Bulk generate</h1></div>
+    <div class="form-wrap" style="max-width:100%;">
+      <div class="field">
+        <label>Shared settings for all rows</label>
+        <div class="field-row">
+          <div class="field">
+            <label>Voice</label>
+            <select id="bulk-voice">
+              <option value="vanishree">Vanishree</option><option value="sonal">Sonal</option>
+              <option value="anika">Anika</option><option value="monika">Monika</option>
+            </select>
+          </div>
+          <div class="field">
+            <label>Fabric</label>
+            <input type="text" id="bulk-fabric" value="Pure Cotton">
+          </div>
+        </div>
+      </div>
+      <div id="bulk-rows"></div>
+      <div class="btn-row" style="margin-bottom:16px;">
+        <button class="btn btn-secondary" onclick="addBulkRow()" style="flex:1;justify-content:center;">+ Add another product</button>
+      </div>
+      <button class="btn btn-generate" id="bulk-generate-btn" onclick="handleBulkGenerate()">Generate all</button>
+      <p style="font-size:11.5px;color:var(--ink-soft);margin-top:10px;text-align:center;">Runs one at a time — total time scales with how many rows you add.</p>
     </div>
   </section>
 </div>
@@ -237,16 +259,18 @@
 const API_BASE = "https://ekisha-content-studio-api-qsnqfawm4q-el.a.run.app";
 const GOOGLE_CLIENT_ID = "68236677617-v2msmlhb9qej5tusl03om6dp2c9ogqn4.apps.googleusercontent.com";
 
+// Based on known Meta Ads performance: 5-6 AM boosts, 8-10 PM suppresses.
+const SUGGESTED_POST_HOUR = 6;
+
 let authToken = null;
 let queueData = [];
 let selectedPhoto = null;
 let selectedExistingMedia = null;
-
-// --- Pill group state ---
 let contentType = "video";
 let visualSource = "generate";
 let wantVoiceover = true;
 let wantCaptions = true;
+let bulkRowCount = 0;
 
 function setupPillGroup(containerId, onSelect){
   const container = document.getElementById(containerId);
@@ -258,32 +282,27 @@ function setupPillGroup(containerId, onSelect){
     });
   });
 }
-
 setupPillGroup("pills-content-type", (val) => {
   contentType = val;
   document.getElementById("video-options-field").style.display = val === "video" ? "block" : "none";
   document.getElementById("existing-media-input").accept = val === "video" ? "video/*" : "image/*";
   document.getElementById("existing-media-box").textContent = val === "video" ? "Upload your video" : "Upload your photo";
 });
-
 setupPillGroup("pills-visual-source", (val) => {
   visualSource = val;
   document.getElementById("existing-media-field").classList.toggle("open", val === "upload");
 });
-
 document.getElementById("pill-voiceover").addEventListener("click", function(){
   wantVoiceover = !wantVoiceover;
   this.classList.toggle("selected", wantVoiceover);
   this.textContent = "Voiceover: " + (wantVoiceover ? "On" : "Off");
   document.getElementById("voice-select-field").classList.toggle("open", wantVoiceover);
 });
-
 document.getElementById("pill-captions").addEventListener("click", function(){
   wantCaptions = !wantCaptions;
   this.classList.toggle("selected", wantCaptions);
   this.textContent = "Captions: " + (wantCaptions ? "On" : "Off");
 });
-
 document.getElementById("photo-input").addEventListener("change", (e) => {
   selectedPhoto = e.target.files[0];
   document.getElementById("upload-box").textContent = selectedPhoto ? selectedPhoto.name : "Drop a photo, or click to browse";
@@ -292,6 +311,28 @@ document.getElementById("existing-media-input").addEventListener("change", (e) =
   selectedExistingMedia = e.target.files[0];
   document.getElementById("existing-media-box").textContent = selectedExistingMedia ? selectedExistingMedia.name : "Upload your photo or video";
 });
+
+// --- Duplicate as template: populate the Generate form's settings from a queue item ---
+function duplicateAsTemplate(i){
+  const p = queueData[i];
+  document.querySelector('nav button[data-view="generate"]').click();
+
+  const ctPill = document.querySelector(`#pills-content-type .pill[data-value="${p.content_type || 'video'}"]`);
+  if(ctPill) ctPill.click();
+  const vsPill = document.querySelector(`#pills-visual-source .pill[data-value="${p.visual_source || 'generate'}"]`);
+  if(vsPill) vsPill.click();
+
+  const shouldHaveVoiceover = !!p.voice;
+  if(shouldHaveVoiceover !== wantVoiceover) document.getElementById('pill-voiceover').click();
+  const shouldHaveCaptions = p.want_captions !== undefined ? p.want_captions : true;
+  if(shouldHaveCaptions !== wantCaptions) document.getElementById('pill-captions').click();
+
+  document.getElementById('gen-category').value = p.category;
+  document.getElementById('gen-fabric').value = p.fabric || "Pure Cotton";
+  if(p.voice) document.getElementById('voice-select').value = p.voice;
+
+  showToast("Settings copied — add a new photo, name, and price to continue");
+}
 
 // --- Google Sign-In ---
 function handleCredentialResponse(response){
@@ -303,18 +344,19 @@ function handleCredentialResponse(response){
   sessionStorage.setItem('ekisha_studio_token', authToken);
   fetchQueue();
 }
-
 function signOut(){
   authToken = null;
   sessionStorage.removeItem('ekisha_studio_token');
   document.getElementById('main-app').classList.remove('unlocked');
   document.getElementById('signin-screen').classList.remove('hidden');
 }
-
 window.onload = function(){
-  google.accounts.id.initialize({ client_id: GOOGLE_CLIENT_ID, callback: handleCredentialResponse });
-  google.accounts.id.renderButton(document.getElementById('google-signin-button'), { theme: 'outline', size: 'large', text: 'signin_with' });
-
+  try {
+    google.accounts.id.initialize({ client_id: GOOGLE_CLIENT_ID, callback: handleCredentialResponse });
+    google.accounts.id.renderButton(document.getElementById('google-signin-button'), { theme: 'outline', size: 'large', text: 'signin_with' });
+  } catch(e){
+    console.error('Google Sign-In failed to initialize:', e);
+  }
   const saved = sessionStorage.getItem('ekisha_studio_token');
   if(saved){
     try {
@@ -326,10 +368,10 @@ window.onload = function(){
       fetchQueue();
     } catch(e){ sessionStorage.removeItem('ekisha_studio_token'); }
   }
+  addBulkRow(); // start bulk view with one row
 };
 
 function authHeaders(extra){ return Object.assign({ "Authorization": `Bearer ${authToken}` }, extra || {}); }
-
 async function handleAuthFailure(resp){
   if(resp.status === 401 || resp.status === 403){
     const body = await resp.json().catch(() => ({}));
@@ -343,6 +385,7 @@ async function handleAuthFailure(resp){
 function statusMeta(status){
   if(status === "published") return {label:"Published", cls:"status-published"};
   if(status === "scheduled") return {label:"Scheduled", cls:"status-scheduled"};
+  if(status === "draft") return {label:"Draft", cls:"status-draft"};
   return {label:"Ready to publish", cls:"status-ready"};
 }
 
@@ -371,19 +414,47 @@ function renderQueue(){
     const meta = statusMeta(p.status);
     const card = document.createElement("div");
     card.className = "tag-card";
+
+    if(p.status === "draft"){
+      card.innerHTML = `
+        <div class="tag-notch"></div>
+        <div class="tag-head">
+          <p class="name">${p.name}</p>
+          <div class="meta"><span>${p.category} · ₹${p.price}</span><span class="status-pill ${meta.cls}">${meta.label}</span></div>
+        </div>
+        <div class="stitch"></div>
+        <div class="tag-body">
+          <p style="font-size:12.5px;color:var(--ink-soft);">Saved, not generated yet — no credits spent.</p>
+          <div class="tag-actions">
+            <button class="btn btn-publish" onclick="handleGenerateFromDraft('${p.slug}', ${i})">Generate now</button>
+          </div>
+        </div>`;
+      grid.appendChild(card);
+      return;
+    }
+
     const videoThumb = p.video_preview_url
       ? `<a href="${p.video_preview_url}" target="_blank" class="thumb" style="text-decoration:none;"><i class="icon">▶</i></a>`
       : `<div class="thumb"><i class="icon">▶</i></div>`;
     const scheduledNote = p.status === 'scheduled' && p.scheduled_time
       ? `<div style="font-family:var(--font-mono);font-size:10.5px;color:var(--ink-soft);margin-top:4px;">for ${new Date(p.scheduled_time).toLocaleString()}</div>` : '';
+    const isVideo = p.media_type !== 'IMAGE';
+    const regenRow = (isVideo && p.status === 'ready') ? `
+        <div class="regen-row">
+          <button class="btn btn-ghost" onclick="handleRegenerate('voiceover', '${p.slug}', ${i})" title="Redo only the voiceover — reuses the existing video clip">↻ Voiceover</button>
+          <button class="btn btn-ghost" onclick="handleRegenerate('visual', '${p.slug}', ${i})" title="Redo only the video clip — reuses the existing voiceover">↻ Video</button>
+        </div>` : '';
+    const downloadShareRow = p.video_preview_url ? `
+        <div class="regen-row">
+          <button class="btn btn-ghost" onclick="downloadMedia('${p.video_preview_url}', '${p.slug}', ${isVideo})">⬇ Download</button>
+          <button class="btn btn-ghost" onclick="shareMedia('${p.video_preview_url}', '${(p.caption||'').replace(/'/g, "\\'").replace(/\n/g,' ')}', '${p.name.replace(/'/g, "\\'")}', ${isVideo})">↗ Share</button>
+        </div>` : '';
+
     card.innerHTML = `
       <div class="tag-notch"></div>
       <div class="tag-head">
         <p class="name">${p.name}</p>
-        <div class="meta">
-          <span>${p.category} · ₹${p.price}</span>
-          <span class="status-pill ${meta.cls}">${meta.label}</span>
-        </div>
+        <div class="meta"><span>${p.category} · ₹${p.price}</span><span class="status-pill ${meta.cls}">${meta.label}</span></div>
       </div>
       <div class="stitch"></div>
       <div class="tag-body">
@@ -401,42 +472,98 @@ function renderQueue(){
           </button>
           <button class="btn btn-ghost" onclick="toggleEdit(${i}, '${p.slug}')">Edit</button>
           ${p.status === 'ready' ? `<button class="btn btn-ghost" onclick="toggleSchedule(${i})">Schedule</button>` : ''}
+          <button class="btn btn-ghost" onclick="duplicateAsTemplate(${i})">Duplicate</button>
         </div>
+        ${regenRow}
+        ${downloadShareRow}
         ${scheduledNote}
         <div class="schedule-row" id="schedule-row-${i}">
           <input type="datetime-local" id="schedule-input-${i}">
+          <button class="btn btn-ghost" onclick="suggestTime(${i})">Suggest time</button>
           <button class="btn btn-publish" style="flex:none;" onclick="handleSchedule('${p.slug}', ${i})">Set</button>
         </div>
-      </div>
-    `;
+      </div>`;
     grid.appendChild(card);
   });
   document.getElementById("queue-count").textContent = queueData.length + " items";
 }
 
-function toggleSchedule(i){
-  document.getElementById(`schedule-row-${i}`).classList.toggle("open");
+async function downloadMedia(url, slug, isVideo){
+  showToast("Preparing download…");
+  try {
+    const resp = await fetch(url);
+    if(!resp.ok) throw new Error("fetch failed");
+    const blob = await resp.blob();
+    const blobUrl = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = blobUrl;
+    a.download = `${slug}.${isVideo ? 'mp4' : 'jpg'}`;
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    URL.revokeObjectURL(blobUrl);
+  } catch(e){
+    // Likely a CORS-on-bucket issue — fall back to just opening it, where
+    // the user can manually Save As.
+    window.open(url, '_blank');
+    showToast("Couldn't force a direct download — opened it in a new tab, use Save As there");
+  }
 }
+
+async function shareMedia(url, caption, name, isVideo){
+  try {
+    const resp = await fetch(url);
+    const blob = await resp.blob();
+    const file = new File([blob], `${name}.${isVideo ? 'mp4' : 'jpg'}`, {type: blob.type});
+    if(navigator.canShare && navigator.canShare({files: [file]})){
+      await navigator.share({files: [file], title: name, text: caption});
+      return;
+    }
+  } catch(e){
+    if(e.name === 'AbortError') return; // user cancelled the share sheet, not an error
+  }
+  if(navigator.share){
+    try {
+      await navigator.share({url, title: name, text: caption});
+      return;
+    } catch(e){
+      if(e.name === 'AbortError') return;
+    }
+  }
+  try {
+    await navigator.clipboard.writeText(url);
+    showToast("Link copied to clipboard");
+  } catch(e){
+    showToast("Couldn't share or copy — try Download instead");
+  }
+}
+
+function suggestTime(i){
+  const now = new Date();
+  const suggestion = new Date(now);
+  suggestion.setHours(SUGGESTED_POST_HOUR, 0, 0, 0);
+  if(suggestion <= now) suggestion.setDate(suggestion.getDate() + 1);
+  const pad = n => String(n).padStart(2, '0');
+  const localValue = `${suggestion.getFullYear()}-${pad(suggestion.getMonth()+1)}-${pad(suggestion.getDate())}T${pad(suggestion.getHours())}:${pad(suggestion.getMinutes())}`;
+  document.getElementById(`schedule-input-${i}`).value = localValue;
+  showToast(`Suggested ${SUGGESTED_POST_HOUR}:00 AM — your ads data shows early morning outperforms evening slots`);
+}
+
+function toggleSchedule(i){ document.getElementById(`schedule-row-${i}`).classList.toggle("open"); }
 
 async function handleSchedule(slug, i){
   const input = document.getElementById(`schedule-input-${i}`);
   if(!input.value){ showToast("Pick a date and time first"); return; }
   const isoTime = new Date(input.value).toISOString();
   try {
-    const resp = await fetch(`${API_BASE}/publish`, {
-      method: "POST",
-      headers: authHeaders({"Content-Type": "application/json"}),
-      body: JSON.stringify({slug, scheduled_time: isoTime}),
-    });
+    const resp = await fetch(`${API_BASE}/publish`, { method: "POST", headers: authHeaders({"Content-Type": "application/json"}), body: JSON.stringify({slug, scheduled_time: isoTime}) });
     if(await handleAuthFailure(resp)) return;
     const body = await resp.json();
     if(!resp.ok) throw new Error(body.detail || `Server returned ${resp.status}`);
     queueData[i] = body;
     renderQueue();
     showToast(`Scheduled "${body.name}" for ${new Date(body.scheduled_time).toLocaleString()}`);
-  } catch(err){
-    showToast(`Couldn't schedule: ${err.message}`);
-  }
+  } catch(err){ showToast(`Couldn't schedule: ${err.message}`); }
 }
 
 async function toggleEdit(i, slug){
@@ -446,9 +573,7 @@ async function toggleEdit(i, slug){
   if(editing){
     const newCaption = edit.value;
     try {
-      const resp = await fetch(`${API_BASE}/queue/${slug}/caption`, {
-        method: "PATCH", headers: authHeaders({"Content-Type": "application/json"}), body: JSON.stringify({caption: newCaption}),
-      });
+      const resp = await fetch(`${API_BASE}/queue/${slug}/caption`, { method: "PATCH", headers: authHeaders({"Content-Type": "application/json"}), body: JSON.stringify({caption: newCaption}) });
       if(await handleAuthFailure(resp)) return;
       if(!resp.ok) throw new Error(`Server returned ${resp.status}`);
       queueData[i].caption = newCaption;
@@ -465,9 +590,7 @@ async function handlePublish(slug, i){
   if(queueData[i].status !== "ready") return;
   showToast("Publishing to Instagram — this can take up to a minute…");
   try {
-    const resp = await fetch(`${API_BASE}/publish`, {
-      method: "POST", headers: authHeaders({"Content-Type": "application/json"}), body: JSON.stringify({slug}),
-    });
+    const resp = await fetch(`${API_BASE}/publish`, { method: "POST", headers: authHeaders({"Content-Type": "application/json"}), body: JSON.stringify({slug}) });
     if(await handleAuthFailure(resp)) return;
     const body = await resp.json();
     if(!resp.ok) throw new Error(body.detail || body.error || `Server returned ${resp.status}`);
@@ -477,23 +600,57 @@ async function handlePublish(slug, i){
   } catch(err){ showToast(`Publish failed: ${err.message}`); }
 }
 
-async function handleGenerate(){
-  const name = document.getElementById("gen-name").value.trim();
-  const category = document.getElementById("gen-category").value;
-  const price = document.getElementById("gen-price").value.trim();
-  const fabric = document.getElementById("gen-fabric").value.trim();
-  const voice = document.getElementById("voice-select").value;
+async function handleGenerateFromDraft(slug, i){
+  showToast("Generating from draft — this can take a few minutes…");
+  try {
+    const resp = await fetch(`${API_BASE}/generate-from-draft/${slug}`, { method: "POST", headers: authHeaders() });
+    if(await handleAuthFailure(resp)) return;
+    const body = await resp.json();
+    if(!resp.ok) throw new Error(body.detail || body.error || `Server returned ${resp.status}`);
+    queueData[i] = body;
+    renderQueue();
+    showToast(`"${body.name}" is ready for review`);
+  } catch(err){ showToast(`Generation failed: ${err.message}`); }
+}
 
+async function handleRegenerate(kind, slug, i){
+  showToast(`Redoing ${kind} — this can take a minute…`);
+  try {
+    const formData = new FormData();
+    formData.append("slug", slug);
+    if(kind === 'voiceover') formData.append("voice", queueData[i].voice || "vanishree");
+    const resp = await fetch(`${API_BASE}/regenerate/${kind}`, { method: "POST", headers: authHeaders(), body: formData });
+    if(await handleAuthFailure(resp)) return;
+    const body = await resp.json();
+    if(!resp.ok) throw new Error(body.detail || body.error || `Server returned ${resp.status}`);
+    queueData[i] = body;
+    renderQueue();
+    showToast(`${kind === 'voiceover' ? 'Voiceover' : 'Video'} updated`);
+  } catch(err){ showToast(`Couldn't regenerate ${kind}: ${err.message}`); }
+}
+
+async function handleSaveDraft(){
+  const name = document.getElementById("gen-name").value.trim();
+  const price = document.getElementById("gen-price").value.trim();
   if(!selectedPhoto){ showToast("Add a product photo first"); return; }
   if(!name){ showToast("Add a product name first"); return; }
-  if(!price){ showToast("Add a price first"); return; }
-  if(visualSource === "upload" && !selectedExistingMedia){ showToast("Upload your existing photo/video first"); return; }
 
-  const btn = document.getElementById("generate-btn");
-  btn.disabled = true;
-  btn.textContent = "Generating…";
-  showToast("Generation started — this can take a few minutes");
+  const formData = buildGenerateFormData(name, price);
+  try {
+    const resp = await fetch(`${API_BASE}/draft`, { method: "POST", headers: authHeaders(), body: formData });
+    if(await handleAuthFailure(resp)) return;
+    const body = await resp.json();
+    if(!resp.ok) throw new Error(body.detail || `Server returned ${resp.status}`);
+    showToast(`Saved "${body.name}" as a draft — no credits used`);
+    document.querySelector('nav button[data-view="queue"]').click();
+    fetchQueue();
+  } catch(err){ showToast(`Couldn't save draft: ${err.message}`); }
+}
 
+function buildGenerateFormData(name, price){
+  const category = document.getElementById("gen-category").value;
+  const fabric = document.getElementById("gen-fabric").value.trim();
+  const voice = document.getElementById("voice-select").value;
   const formData = new FormData();
   formData.append("image", selectedPhoto);
   formData.append("name", name);
@@ -505,10 +662,22 @@ async function handleGenerate(){
   formData.append("visual_source", visualSource);
   formData.append("want_voiceover", contentType === "video" ? wantVoiceover : false);
   formData.append("want_captions", contentType === "video" ? wantCaptions : false);
-  if(visualSource === "upload" && selectedExistingMedia){
-    formData.append("existing_media", selectedExistingMedia);
-  }
+  if(visualSource === "upload" && selectedExistingMedia) formData.append("existing_media", selectedExistingMedia);
+  return formData;
+}
 
+async function handleGenerate(){
+  const name = document.getElementById("gen-name").value.trim();
+  const price = document.getElementById("gen-price").value.trim();
+  if(!selectedPhoto){ showToast("Add a product photo first"); return; }
+  if(!name){ showToast("Add a product name first"); return; }
+  if(!price){ showToast("Add a price first"); return; }
+  if(visualSource === "upload" && !selectedExistingMedia){ showToast("Upload your existing photo/video first"); return; }
+
+  const btn = document.getElementById("generate-btn");
+  btn.disabled = true; btn.textContent = "Generating…";
+  showToast("Generation started — this can take a few minutes");
+  const formData = buildGenerateFormData(name, price);
   try {
     const resp = await fetch(`${API_BASE}/generate`, { method: "POST", headers: authHeaders(), body: formData });
     if(await handleAuthFailure(resp)) return;
@@ -520,9 +689,95 @@ async function handleGenerate(){
   } catch(err){
     showToast(`Generation failed: ${err.message}`);
   } finally {
-    btn.disabled = false;
-    btn.textContent = "Generate content";
+    btn.disabled = false; btn.textContent = "Generate content";
   }
+}
+
+// --- Bulk generate ---
+function addBulkRow(){
+  bulkRowCount++;
+  const id = bulkRowCount;
+  const container = document.getElementById("bulk-rows");
+  const row = document.createElement("div");
+  row.className = "bulk-row";
+  row.id = `bulk-row-${id}`;
+  row.innerHTML = `
+    <button type="button" class="remove-row" onclick="document.getElementById('bulk-row-${id}').remove()">Remove</button>
+    <div class="field">
+      <label>Product photo</label>
+      <input type="file" id="bulk-photo-${id}" accept="image/*" style="display:none;">
+      <div class="upload-box" onclick="document.getElementById('bulk-photo-${id}').click()" id="bulk-photo-box-${id}">Drop a photo, or click to browse</div>
+    </div>
+    <div class="field-row">
+      <div class="field"><label>Product name</label><input type="text" id="bulk-name-${id}" placeholder="Product name"></div>
+      <div class="field"><label>Category</label>
+        <select id="bulk-category-${id}"><option>Coords</option><option>Kurtis</option><option>Shirts</option><option>Tunics</option><option>Dresses</option></select>
+      </div>
+      <div class="field"><label>Price (₹)</label><input type="text" id="bulk-price-${id}" placeholder="999"></div>
+    </div>
+    <div class="bulk-status" id="bulk-status-${id}">Pending</div>
+  `;
+  container.appendChild(row);
+  document.getElementById(`bulk-photo-${id}`).addEventListener("change", (e) => {
+    const f = e.target.files[0];
+    document.getElementById(`bulk-photo-box-${id}`).textContent = f ? f.name : "Drop a photo, or click to browse";
+  });
+}
+
+async function handleBulkGenerate(){
+  const rows = document.querySelectorAll("#bulk-rows .bulk-row");
+  if(rows.length === 0){ showToast("Add at least one product row"); return; }
+
+  const sharedVoice = document.getElementById("bulk-voice").value;
+  const sharedFabric = document.getElementById("bulk-fabric").value.trim();
+  const btn = document.getElementById("bulk-generate-btn");
+  btn.disabled = true; btn.textContent = "Generating all…";
+
+  for(const row of rows){
+    const id = row.id.replace("bulk-row-", "");
+    const photoInput = document.getElementById(`bulk-photo-${id}`);
+    const name = document.getElementById(`bulk-name-${id}`).value.trim();
+    const category = document.getElementById(`bulk-category-${id}`).value;
+    const price = document.getElementById(`bulk-price-${id}`).value.trim();
+    const statusEl = document.getElementById(`bulk-status-${id}`);
+
+    if(!photoInput.files[0] || !name || !price){
+      statusEl.textContent = "Skipped (missing fields)";
+      statusEl.className = "bulk-status failed";
+      continue;
+    }
+
+    statusEl.textContent = "Generating…";
+    statusEl.className = "bulk-status working";
+
+    const formData = new FormData();
+    formData.append("image", photoInput.files[0]);
+    formData.append("name", name);
+    formData.append("category", category);
+    formData.append("price", price);
+    formData.append("fabric", sharedFabric);
+    formData.append("voice", sharedVoice);
+    formData.append("content_type", "video");
+    formData.append("visual_source", "generate");
+    formData.append("want_voiceover", true);
+    formData.append("want_captions", true);
+
+    try {
+      const resp = await fetch(`${API_BASE}/generate`, { method: "POST", headers: authHeaders(), body: formData });
+      if(await handleAuthFailure(resp)) return;
+      const body = await resp.json();
+      if(!resp.ok) throw new Error(body.detail || `Server returned ${resp.status}`);
+      statusEl.textContent = "Done";
+      statusEl.className = "bulk-status done";
+    } catch(err){
+      statusEl.textContent = "Failed: " + err.message;
+      statusEl.className = "bulk-status failed";
+    }
+  }
+
+  btn.disabled = false; btn.textContent = "Generate all";
+  showToast("Bulk generation finished — check Review queue");
+  fetchQueue();
 }
 
 function showToast(text){
