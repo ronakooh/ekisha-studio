@@ -101,6 +101,22 @@
   #main-app{display:none;}
   #main-app.unlocked{display:block;}
 
+  /* Review modal */
+  #review-overlay{position:fixed;inset:0;background:rgba(35,41,31,0.5);display:none;align-items:flex-start;justify-content:center;z-index:900;overflow-y:auto;padding:40px 20px;}
+  #review-overlay.open{display:flex;}
+  .review-modal{background:var(--card);border:1px solid var(--line);border-radius:10px;max-width:600px;width:100%;padding:0;}
+  .review-modal-head{padding:24px 28px 16px;border-bottom:1.5px dashed var(--line);}
+  .review-modal-head h2{font-family:var(--font-voice);font-weight:500;font-size:20px;margin:0 0 4px;}
+  .review-modal-head p{font-family:var(--font-mono);font-size:11px;color:var(--ink-soft);margin:0;}
+  .review-modal-body{padding:20px 28px;}
+  .review-field{margin-bottom:18px;}
+  .review-field label{display:block;font-family:var(--font-mono);font-size:10.5px;text-transform:uppercase;letter-spacing:0.06em;color:var(--ink-soft);margin-bottom:6px;}
+  .review-field textarea, .review-field input{width:100%;font-family:var(--font-sans);font-size:13.5px;line-height:1.5;color:var(--ink);border:1px solid var(--line);border-radius:6px;padding:9px 11px;background:var(--white);resize:vertical;}
+  .review-field textarea:focus, .review-field input:focus{outline:none;border-color:var(--sage);}
+  .review-scene{border:1px solid var(--line);border-radius:8px;padding:14px;margin-bottom:12px;background:var(--white);}
+  .review-scene-label{font-family:var(--font-mono);font-size:10px;text-transform:uppercase;color:var(--terracotta-dark);letter-spacing:0.06em;margin-bottom:8px;display:flex;justify-content:space-between;}
+  .review-modal-actions{padding:16px 28px 24px;display:flex;gap:10px;border-top:1px solid var(--line);}
+
   /* Bulk generate */
   .bulk-row{background:var(--card);border:1px solid var(--line);border-radius:8px;padding:18px;margin-bottom:14px;position:relative;}
   .bulk-row .remove-row{position:absolute;top:12px;right:12px;background:none;border:none;color:var(--terracotta-dark);cursor:pointer;font-size:12px;}
@@ -253,6 +269,33 @@
 </div>
 </div>
 
+<div id="review-overlay">
+  <div class="review-modal">
+    <div class="review-modal-head">
+      <h2>Review before continuing</h2>
+      <p>Edit anything below — nothing else gets generated until you continue</p>
+    </div>
+    <div class="review-modal-body">
+      <div class="review-field">
+        <label>Instagram caption</label>
+        <textarea id="review-caption" rows="4"></textarea>
+      </div>
+      <div class="review-field">
+        <label>Hashtags (space-separated)</label>
+        <input type="text" id="review-hashtags">
+      </div>
+      <div class="review-field">
+        <label>Video script</label>
+        <div id="review-scenes"></div>
+      </div>
+    </div>
+    <div class="review-modal-actions">
+      <button class="btn btn-ghost" onclick="handleDiscardReview()">Discard</button>
+      <button class="btn btn-generate" id="review-continue-btn" style="flex:1;" onclick="handleContinueGenerate()">Continue — generate video</button>
+    </div>
+  </div>
+</div>
+
 <div id="toast"><span class="dot"></span><span id="toast-text"></span></div>
 
 <script>
@@ -271,6 +314,8 @@ let visualSource = "generate";
 let wantVoiceover = true;
 let wantCaptions = true;
 let bulkRowCount = 0;
+let pendingReviewSlug = null;
+let pendingReviewContent = null;
 
 function setupPillGroup(containerId, onSelect){
   const container = document.getElementById(containerId);
@@ -675,21 +720,93 @@ async function handleGenerate(){
   if(visualSource === "upload" && !selectedExistingMedia){ showToast("Upload your existing photo/video first"); return; }
 
   const btn = document.getElementById("generate-btn");
-  btn.disabled = true; btn.textContent = "Generating…";
-  showToast("Generation started — this can take a few minutes");
+  btn.disabled = true; btn.textContent = "Writing content…";
+  showToast("Generating content for review — this is quick");
   const formData = buildGenerateFormData(name, price);
   try {
-    const resp = await fetch(`${API_BASE}/generate`, { method: "POST", headers: authHeaders(), body: formData });
+    const resp = await fetch(`${API_BASE}/generate/start`, { method: "POST", headers: authHeaders(), body: formData });
     if(await handleAuthFailure(resp)) return;
     const body = await resp.json();
     if(!resp.ok) throw new Error(body.detail || body.error || `Server returned ${resp.status}`);
+    pendingReviewSlug = body.slug;
+    pendingReviewContent = body.content;
+    openReviewModal(body.content);
+  } catch(err){
+    showToast(`Content generation failed: ${err.message}`);
+  } finally {
+    btn.disabled = false; btn.textContent = "Generate content";
+  }
+}
+
+function openReviewModal(content){
+  document.getElementById("review-caption").value = content.instagram.caption;
+  document.getElementById("review-hashtags").value = (content.instagram.hashtags || []).join(" ");
+
+  const scenesContainer = document.getElementById("review-scenes");
+  scenesContainer.innerHTML = "";
+  if(contentType === "video" && content.video_script && content.video_script.scenes){
+    content.video_script.scenes.forEach(scene => {
+      const div = document.createElement("div");
+      div.className = "review-scene";
+      div.innerHTML = `
+        <div class="review-scene-label"><span>${scene.scene}</span><span>${scene.duration_seconds}s</span></div>
+        <textarea class="scene-voiceover" data-scene="${scene.scene}" rows="2">${scene.voiceover}</textarea>
+      `;
+      scenesContainer.appendChild(div);
+    });
+    scenesContainer.parentElement.style.display = "block";
+  } else {
+    scenesContainer.parentElement.style.display = "none";
+  }
+
+  document.getElementById("review-overlay").classList.add("open");
+}
+
+function collectEditedContent(){
+  const edited = JSON.parse(JSON.stringify(pendingReviewContent)); // deep clone
+  edited.instagram.caption = document.getElementById("review-caption").value;
+  edited.instagram.hashtags = document.getElementById("review-hashtags").value.split(/\s+/).filter(Boolean);
+
+  if(edited.video_script && edited.video_script.scenes){
+    document.querySelectorAll(".scene-voiceover").forEach(ta => {
+      const scene = edited.video_script.scenes.find(s => s.scene === ta.dataset.scene);
+      if(scene) scene.voiceover = ta.value;
+    });
+  }
+  return edited;
+}
+
+function handleDiscardReview(){
+  document.getElementById("review-overlay").classList.remove("open");
+  pendingReviewSlug = null;
+  pendingReviewContent = null;
+  showToast("Discarded — nothing further was generated");
+}
+
+async function handleContinueGenerate(){
+  if(!pendingReviewSlug) return;
+  const editedContent = collectEditedContent();
+  const btn = document.getElementById("review-continue-btn");
+  btn.disabled = true; btn.textContent = "Generating…";
+  showToast("Generating the rest — this can take a few minutes");
+
+  try {
+    const resp = await fetch(`${API_BASE}/generate/finish`, {
+      method: "POST", headers: authHeaders({"Content-Type": "application/json"}),
+      body: JSON.stringify({slug: pendingReviewSlug, content: editedContent}),
+    });
+    if(await handleAuthFailure(resp)) return;
+    const body = await resp.json();
+    if(!resp.ok) throw new Error(body.detail || body.error || `Server returned ${resp.status}`);
+    document.getElementById("review-overlay").classList.remove("open");
+    pendingReviewSlug = null; pendingReviewContent = null;
     showToast(`"${body.name}" is ready for review`);
     document.querySelector('nav button[data-view="queue"]').click();
     fetchQueue();
   } catch(err){
     showToast(`Generation failed: ${err.message}`);
   } finally {
-    btn.disabled = false; btn.textContent = "Generate content";
+    btn.disabled = false; btn.textContent = "Continue — generate video";
   }
 }
 
