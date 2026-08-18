@@ -25,236 +25,90 @@
     --font-mono:'IBM Plex Mono', monospace;
   }
   *{box-sizing:border-box;}
-  body{
-    margin:0;
-    background:var(--canvas);
-    color:var(--ink);
-    font-family:var(--font-sans);
-    -webkit-font-smoothing:antialiased;
-  }
+  body{margin:0;background:var(--canvas);color:var(--ink);font-family:var(--font-sans);-webkit-font-smoothing:antialiased;}
   .app{max-width:1080px;margin:0 auto;padding:0 32px 80px;}
 
-  header{
-    display:flex;align-items:center;justify-content:space-between;
-    padding:32px 0 24px;
-  }
-  .wordmark{
-    font-family:var(--font-voice);
-    font-weight:600;
-    font-size:22px;
-    letter-spacing:-0.01em;
-    display:flex;align-items:center;gap:10px;
-  }
-  .wordmark .dot{
-    width:9px;height:9px;border-radius:50%;
-    background:var(--terracotta);
-    display:inline-block;
-  }
-  .wordmark .sub{
-    font-family:var(--font-mono);
-    font-size:11px;
-    color:var(--ink-soft);
-    text-transform:uppercase;
-    letter-spacing:0.08em;
-    margin-left:4px;
-  }
+  header{display:flex;align-items:center;justify-content:space-between;padding:32px 0 24px;}
+  .wordmark{font-family:var(--font-voice);font-weight:600;font-size:22px;letter-spacing:-0.01em;display:flex;align-items:center;gap:10px;}
+  .wordmark .dot{width:9px;height:9px;border-radius:50%;background:var(--terracotta);display:inline-block;}
+  .wordmark .sub{font-family:var(--font-mono);font-size:11px;color:var(--ink-soft);text-transform:uppercase;letter-spacing:0.08em;margin-left:4px;}
   .header-right{display:flex;align-items:center;gap:16px;}
   nav{display:flex;gap:4px;background:var(--line);padding:4px;border-radius:10px;}
-  nav button{
-    font-family:var(--font-sans);
-    font-weight:500;
-    font-size:13px;
-    padding:8px 18px;
-    border:none;background:transparent;
-    color:var(--ink-soft);
-    border-radius:7px;
-    cursor:pointer;
-    transition:background .15s ease, color .15s ease;
-  }
+  nav button{font-family:var(--font-sans);font-weight:500;font-size:13px;padding:8px 18px;border:none;background:transparent;color:var(--ink-soft);border-radius:7px;cursor:pointer;transition:background .15s ease, color .15s ease;}
   nav button.active{background:var(--white);color:var(--ink);box-shadow:0 1px 2px rgba(0,0,0,0.06);}
+  .account-chip{display:flex;align-items:center;gap:8px;font-family:var(--font-mono);font-size:11.5px;color:var(--ink-soft);}
+  .account-chip button{font-family:var(--font-sans);font-size:11.5px;color:var(--terracotta-dark);background:none;border:none;cursor:pointer;text-decoration:underline;padding:0;}
 
-  .account-chip{
-    display:flex;align-items:center;gap:8px;
-    font-family:var(--font-mono);font-size:11.5px;color:var(--ink-soft);
-  }
-  .account-chip button{
-    font-family:var(--font-sans);font-size:11.5px;color:var(--terracotta-dark);
-    background:none;border:none;cursor:pointer;text-decoration:underline;
-    padding:0;
-  }
+  .section-head{display:flex;align-items:baseline;justify-content:space-between;margin:8px 0 24px;border-bottom:1px solid var(--line);padding-bottom:16px;}
+  .section-head h1{font-family:var(--font-voice);font-weight:500;font-size:26px;margin:0;}
+  .section-head .count{font-family:var(--font-mono);font-size:12px;color:var(--ink-soft);}
 
-  .section-head{
-    display:flex;align-items:baseline;justify-content:space-between;
-    margin:8px 0 24px;
-    border-bottom:1px solid var(--line);
-    padding-bottom:16px;
-  }
-  .section-head h1{
-    font-family:var(--font-voice);
-    font-weight:500;font-size:26px;margin:0;
-  }
-  .section-head .count{
-    font-family:var(--font-mono);
-    font-size:12px;color:var(--ink-soft);
-  }
-
-  .queue{
-    display:grid;
-    grid-template-columns:repeat(auto-fill, minmax(320px, 1fr));
-    gap:20px;
-  }
-
-  .tag-card{
-    background:var(--card);
-    border:1px solid var(--line);
-    border-radius:4px;
-    position:relative;
-    overflow:hidden;
-  }
-  .tag-notch{
-    position:absolute;top:14px;left:14px;
-    width:11px;height:11px;
-    border-radius:50%;
-    background:var(--canvas);
-    border:1px solid var(--line);
-  }
-  .tag-head{
-    padding:16px 18px 16px 40px;
-  }
-  .tag-head .name{
-    font-family:var(--font-voice);
-    font-weight:500;
-    font-size:16.5px;
-    line-height:1.3;
-    margin:0 0 4px;
-  }
-  .tag-head .meta{
-    font-family:var(--font-mono);
-    font-size:11.5px;
-    color:var(--ink-soft);
-    display:flex;gap:10px;align-items:center;
-  }
-  .status-pill{
-    font-family:var(--font-sans);
-    font-size:11px;font-weight:500;
-    padding:2px 9px;border-radius:20px;
-  }
+  .queue{display:grid;grid-template-columns:repeat(auto-fill, minmax(320px, 1fr));gap:20px;}
+  .tag-card{background:var(--card);border:1px solid var(--line);border-radius:4px;position:relative;overflow:hidden;}
+  .tag-notch{position:absolute;top:14px;left:14px;width:11px;height:11px;border-radius:50%;background:var(--canvas);border:1px solid var(--line);}
+  .tag-head{padding:16px 18px 16px 40px;}
+  .tag-head .name{font-family:var(--font-voice);font-weight:500;font-size:16.5px;line-height:1.3;margin:0 0 4px;}
+  .tag-head .meta{font-family:var(--font-mono);font-size:11.5px;color:var(--ink-soft);display:flex;gap:10px;align-items:center;flex-wrap:wrap;}
+  .status-pill{font-family:var(--font-sans);font-size:11px;font-weight:500;padding:2px 9px;border-radius:20px;}
   .status-ready{background:#EAF1E8;color:var(--sage-dark);}
   .status-published{background:#F3E7DF;color:var(--terracotta-dark);}
-  .status-draft{background:#F2E9D4;color:#7A5A17;}
-
-  .stitch{
-    border-top:1.5px dashed var(--line);
-    margin:0 18px;
-  }
-
+  .status-scheduled{background:#F2E9D4;color:#7A5A17;}
+  .stitch{border-top:1.5px dashed var(--line);margin:0 18px;}
   .tag-body{padding:14px 18px 18px;}
   .thumb-row{display:flex;gap:12px;margin-bottom:12px;}
-  .thumb{
-    width:64px;height:88px;
-    border-radius:6px;
-    background:linear-gradient(155deg, #6B8267 0%, #4F6B4A 55%, #374A34 100%);
-    flex-shrink:0;
-    display:flex;align-items:center;justify-content:center;
-  }
+  .thumb{width:64px;height:88px;border-radius:6px;background:linear-gradient(155deg, #6B8267 0%, #4F6B4A 55%, #374A34 100%);flex-shrink:0;display:flex;align-items:center;justify-content:center;}
   .thumb i{color:rgba(255,255,255,0.85);font-size:18px;}
-  .voice-line{
-    font-family:var(--font-mono);font-size:11px;color:var(--ink-soft);
-    display:flex;align-items:center;gap:5px;margin-bottom:2px;
-  }
-  .caption-preview{
-    font-size:13px;line-height:1.5;color:var(--ink);
-    display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;
-    overflow:hidden;
-  }
-  .caption-edit{
-    width:100%;font-family:var(--font-sans);font-size:13px;line-height:1.5;
-    color:var(--ink);border:1px solid var(--line);border-radius:6px;
-    padding:8px 10px;resize:vertical;min-height:64px;background:var(--white);
-  }
+  .voice-line{font-family:var(--font-mono);font-size:11px;color:var(--ink-soft);display:flex;align-items:center;gap:5px;margin-bottom:2px;}
+  .caption-preview{font-size:13px;line-height:1.5;color:var(--ink);display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden;}
+  .caption-edit{width:100%;font-family:var(--font-sans);font-size:13px;line-height:1.5;color:var(--ink);border:1px solid var(--line);border-radius:6px;padding:8px 10px;resize:vertical;min-height:64px;background:var(--white);}
   .caption-edit:focus{outline:none;border-color:var(--sage);}
-
-  .tag-actions{
-    display:flex;gap:8px;margin-top:14px;
-  }
-  .btn{
-    font-family:var(--font-sans);font-weight:500;font-size:12.5px;
-    padding:9px 14px;border-radius:6px;border:1px solid var(--line);
-    background:var(--white);color:var(--ink);cursor:pointer;
-    display:flex;align-items:center;gap:6px;
-    transition:transform .1s ease, background .15s ease;
-  }
+  .tag-actions{display:flex;gap:8px;margin-top:14px;flex-wrap:wrap;}
+  .btn{font-family:var(--font-sans);font-weight:500;font-size:12.5px;padding:9px 14px;border-radius:6px;border:1px solid var(--line);background:var(--white);color:var(--ink);cursor:pointer;display:flex;align-items:center;gap:6px;transition:transform .1s ease, background .15s ease;}
   .btn:active{transform:scale(0.97);}
-  .btn-publish{
-    background:var(--terracotta);color:#fff;border-color:var(--terracotta);
-    flex:1;justify-content:center;
-  }
+  .btn-publish{background:var(--terracotta);color:#fff;border-color:var(--terracotta);flex:1;justify-content:center;min-width:120px;}
   .btn-publish:hover{background:var(--terracotta-dark);}
   .btn-publish[disabled]{background:var(--sage);border-color:var(--sage);cursor:default;opacity:0.9;}
   .btn-ghost{background:transparent;}
   .btn-ghost:hover{background:var(--canvas);}
   .icon{font-family:var(--font-sans);font-size:14px;line-height:1;}
+  .schedule-row{display:none;gap:8px;margin-top:8px;align-items:center;}
+  .schedule-row.open{display:flex;}
+  .schedule-row input{font-family:var(--font-sans);font-size:12px;padding:7px 8px;border:1px solid var(--line);border-radius:6px;flex:1;}
 
-  .form-wrap{
-    background:var(--card);border:1px solid var(--line);border-radius:10px;
-    padding:32px;max-width:560px;
-  }
+  .form-wrap{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:32px;max-width:600px;}
   .field{margin-bottom:18px;}
-  .field label{
-    display:block;font-family:var(--font-mono);font-size:11px;
-    text-transform:uppercase;letter-spacing:0.06em;color:var(--ink-soft);
-    margin-bottom:7px;
-  }
-  .field input, .field select{
-    width:100%;font-family:var(--font-sans);font-size:14px;
-    padding:10px 12px;border:1px solid var(--line);border-radius:6px;
-    background:var(--white);color:var(--ink);
-  }
+  .field label{display:block;font-family:var(--font-mono);font-size:11px;text-transform:uppercase;letter-spacing:0.06em;color:var(--ink-soft);margin-bottom:7px;}
+  .field input, .field select{width:100%;font-family:var(--font-sans);font-size:14px;padding:10px 12px;border:1px solid var(--line);border-radius:6px;background:var(--white);color:var(--ink);}
   .field input:focus, .field select:focus{outline:none;border-color:var(--sage);}
   .field-row{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
-  .upload-box{
-    border:1.5px dashed var(--line);border-radius:8px;
-    padding:28px;text-align:center;color:var(--ink-soft);
-    font-size:13px;cursor:pointer;background:var(--white);
-  }
+  .upload-box{border:1.5px dashed var(--line);border-radius:8px;padding:22px;text-align:center;color:var(--ink-soft);font-size:13px;cursor:pointer;background:var(--white);}
   .upload-box:hover{border-color:var(--sage);}
-  .btn-generate{
-    width:100%;background:var(--sage);color:#fff;border-color:var(--sage);
-    justify-content:center;padding:12px;font-size:13.5px;margin-top:6px;
-  }
+  .btn-generate{width:100%;background:var(--sage);color:#fff;border-color:var(--sage);justify-content:center;padding:12px;font-size:13.5px;margin-top:6px;}
   .btn-generate:hover{background:var(--sage-dark);}
 
-  #toast{
-    position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(20px);
-    background:var(--ink);color:#fff;font-size:13px;font-family:var(--font-sans);
-    padding:11px 18px;border-radius:8px;opacity:0;pointer-events:none;
-    transition:opacity .2s ease, transform .2s ease;
-    display:flex;align-items:center;gap:8px;
-  }
+  /* Pill choice groups */
+  .pill-group{display:flex;gap:8px;flex-wrap:wrap;}
+  .pill{font-family:var(--font-sans);font-size:12.5px;font-weight:500;padding:8px 16px;border-radius:20px;border:1px solid var(--line);background:var(--white);color:var(--ink-soft);cursor:pointer;transition:all .12s ease;}
+  .pill:hover{border-color:var(--sage);}
+  .pill.selected{background:var(--sage);border-color:var(--sage);color:#fff;}
+  .pill-hint{font-size:11px;color:var(--ink-soft);margin-top:6px;}
+  .subfield{display:none;margin-top:12px;}
+  .subfield.open{display:block;}
+
+  #toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(20px);background:var(--ink);color:#fff;font-size:13px;font-family:var(--font-sans);padding:11px 18px;border-radius:8px;opacity:0;pointer-events:none;transition:opacity .2s ease, transform .2s ease;display:flex;align-items:center;gap:8px;max-width:420px;}
   #toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
-  #toast .dot{width:6px;height:6px;border-radius:50%;background:#8FC98A;}
+  #toast .dot{width:6px;height:6px;border-radius:50%;background:#8FC98A;flex-shrink:0;}
 
   .view{display:none;}
   .view.active{display:block;}
 
-  /* Sign-in gate */
-  #signin-screen{
-    position:fixed;inset:0;background:var(--canvas);
-    display:flex;align-items:center;justify-content:center;z-index:1000;
-  }
+  #signin-screen{position:fixed;inset:0;background:var(--canvas);display:flex;align-items:center;justify-content:center;z-index:1000;}
   #signin-screen.hidden{display:none;}
-  .signin-box{
-    background:var(--card);border:1px solid var(--line);border-radius:10px;
-    padding:44px 40px;width:100%;max-width:360px;text-align:center;
-  }
+  .signin-box{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:44px 40px;width:100%;max-width:360px;text-align:center;}
   .signin-box .wordmark{justify-content:center;margin-bottom:6px;}
-  .signin-box p.tag{
-    font-family:var(--font-mono);font-size:11px;color:var(--ink-soft);
-    text-transform:uppercase;letter-spacing:0.08em;margin:0 0 28px;
-  }
+  .signin-box p.tag{font-family:var(--font-mono);font-size:11px;color:var(--ink-soft);text-transform:uppercase;letter-spacing:0.08em;margin:0 0 28px;}
   #google-signin-button{display:flex;justify-content:center;}
   #signin-error{color:var(--terracotta-dark);font-size:12px;margin-top:14px;min-height:16px;}
-
   #main-app{display:none;}
   #main-app.unlocked{display:block;}
 
@@ -305,6 +159,45 @@
       <h1>Generate new content</h1>
     </div>
     <div class="form-wrap">
+
+      <div class="field">
+        <label>What are you creating?</label>
+        <div class="pill-group" id="pills-content-type">
+          <button type="button" class="pill selected" data-value="video">Video</button>
+          <button type="button" class="pill" data-value="photo">Photo</button>
+        </div>
+      </div>
+
+      <div class="field">
+        <label>Visual source</label>
+        <div class="pill-group" id="pills-visual-source">
+          <button type="button" class="pill selected" data-value="generate">Generate with AI</button>
+          <button type="button" class="pill" data-value="upload">Use my own</button>
+        </div>
+        <div class="subfield" id="existing-media-field">
+          <input type="file" id="existing-media-input" accept="image/*,video/*" style="display:none;">
+          <div class="upload-box" id="existing-media-box" onclick="document.getElementById('existing-media-input').click()">Upload your photo or video</div>
+        </div>
+      </div>
+
+      <div class="field" id="video-options-field">
+        <label>Video options</label>
+        <div class="pill-group">
+          <button type="button" class="pill selected" id="pill-voiceover" data-value="on">Voiceover: On</button>
+          <button type="button" class="pill" id="pill-captions-placeholder" style="display:none;"></button>
+          <button type="button" class="pill selected" id="pill-captions" data-value="on">Captions: On</button>
+        </div>
+        <p class="pill-hint">Turning a feature off skips that generation step entirely — no credits spent on it.</p>
+        <div class="subfield open" id="voice-select-field">
+          <select id="voice-select" style="margin-top:8px;">
+            <option value="vanishree">Vanishree</option>
+            <option value="sonal">Sonal</option>
+            <option value="anika">Anika</option>
+            <option value="monika">Monika</option>
+          </select>
+        </div>
+      </div>
+
       <div class="field">
         <label>Product photo</label>
         <input type="file" id="photo-input" accept="image/*" style="display:none;">
@@ -318,11 +211,7 @@
         <div class="field">
           <label>Category</label>
           <select id="gen-category">
-            <option>Coords</option>
-            <option>Kurtis</option>
-            <option>Shirts</option>
-            <option>Tunics</option>
-            <option>Dresses</option>
+            <option>Coords</option><option>Kurtis</option><option>Shirts</option><option>Tunics</option><option>Dresses</option>
           </select>
         </div>
         <div class="field">
@@ -334,17 +223,9 @@
         <label>Fabric</label>
         <input type="text" id="gen-fabric" value="Pure Cotton">
       </div>
-      <div class="field">
-        <label>Voice</label>
-        <select id="voice-select">
-          <option value="vanishree">Vanishree</option>
-          <option value="sonal">Sonal</option>
-          <option value="anika">Anika</option>
-          <option value="monika">Monika</option>
-        </select>
-      </div>
+
       <button class="btn btn-generate" id="generate-btn" onclick="handleGenerate()">Generate content</button>
-      <p style="font-size:11.5px;color:var(--ink-soft);margin-top:10px;text-align:center;">Takes 1-5 minutes — content, voiceover, video, and assembly all run in one pass.</p>
+      <p id="generate-hint" style="font-size:11.5px;color:var(--ink-soft);margin-top:10px;text-align:center;">Takes 1-5 minutes depending on what's selected above.</p>
     </div>
   </section>
 </div>
@@ -354,20 +235,66 @@
 
 <script>
 const API_BASE = "https://ekisha-content-studio-api-qsnqfawm4q-el.a.run.app";
-
-// Fill this in once you've created the OAuth Client ID (see chat for steps).
 const GOOGLE_CLIENT_ID = "68236677617-v2msmlhb9qej5tusl03om6dp2c9ogqn4.apps.googleusercontent.com";
 
 let authToken = null;
 let queueData = [];
 let selectedPhoto = null;
+let selectedExistingMedia = null;
+
+// --- Pill group state ---
+let contentType = "video";
+let visualSource = "generate";
+let wantVoiceover = true;
+let wantCaptions = true;
+
+function setupPillGroup(containerId, onSelect){
+  const container = document.getElementById(containerId);
+  container.querySelectorAll(".pill").forEach(pill => {
+    pill.addEventListener("click", () => {
+      container.querySelectorAll(".pill").forEach(p => p.classList.remove("selected"));
+      pill.classList.add("selected");
+      onSelect(pill.dataset.value);
+    });
+  });
+}
+
+setupPillGroup("pills-content-type", (val) => {
+  contentType = val;
+  document.getElementById("video-options-field").style.display = val === "video" ? "block" : "none";
+  document.getElementById("existing-media-input").accept = val === "video" ? "video/*" : "image/*";
+  document.getElementById("existing-media-box").textContent = val === "video" ? "Upload your video" : "Upload your photo";
+});
+
+setupPillGroup("pills-visual-source", (val) => {
+  visualSource = val;
+  document.getElementById("existing-media-field").classList.toggle("open", val === "upload");
+});
+
+document.getElementById("pill-voiceover").addEventListener("click", function(){
+  wantVoiceover = !wantVoiceover;
+  this.classList.toggle("selected", wantVoiceover);
+  this.textContent = "Voiceover: " + (wantVoiceover ? "On" : "Off");
+  document.getElementById("voice-select-field").classList.toggle("open", wantVoiceover);
+});
+
+document.getElementById("pill-captions").addEventListener("click", function(){
+  wantCaptions = !wantCaptions;
+  this.classList.toggle("selected", wantCaptions);
+  this.textContent = "Captions: " + (wantCaptions ? "On" : "Off");
+});
+
+document.getElementById("photo-input").addEventListener("change", (e) => {
+  selectedPhoto = e.target.files[0];
+  document.getElementById("upload-box").textContent = selectedPhoto ? selectedPhoto.name : "Drop a photo, or click to browse";
+});
+document.getElementById("existing-media-input").addEventListener("change", (e) => {
+  selectedExistingMedia = e.target.files[0];
+  document.getElementById("existing-media-box").textContent = selectedExistingMedia ? selectedExistingMedia.name : "Upload your photo or video";
+});
 
 // --- Google Sign-In ---
 function handleCredentialResponse(response){
-  // response.credential is a signed Google ID token (JWT). We send it as-is
-  // to the backend on every request; the backend re-verifies it against
-  // Google's servers and checks the email allowlist. Nothing here is
-  // trusted client-side — this just controls what the UI *shows*.
   authToken = response.credential;
   const payload = JSON.parse(atob(response.credential.split('.')[1]));
   document.getElementById('account-email').textContent = payload.email;
@@ -385,36 +312,23 @@ function signOut(){
 }
 
 window.onload = function(){
-  google.accounts.id.initialize({
-    client_id: GOOGLE_CLIENT_ID,
-    callback: handleCredentialResponse,
-  });
-  google.accounts.id.renderButton(
-    document.getElementById('google-signin-button'),
-    { theme: 'outline', size: 'large', text: 'signin_with' }
-  );
+  google.accounts.id.initialize({ client_id: GOOGLE_CLIENT_ID, callback: handleCredentialResponse });
+  google.accounts.id.renderButton(document.getElementById('google-signin-button'), { theme: 'outline', size: 'large', text: 'signin_with' });
 
   const saved = sessionStorage.getItem('ekisha_studio_token');
   if(saved){
     try {
       const payload = JSON.parse(atob(saved.split('.')[1]));
-      // Optimistic UI restore — the backend still re-verifies on every call,
-      // so an expired/tampered token here just results in 401s, not a
-      // security hole.
       authToken = saved;
       document.getElementById('account-email').textContent = payload.email;
       document.getElementById('signin-screen').classList.add('hidden');
       document.getElementById('main-app').classList.add('unlocked');
       fetchQueue();
-    } catch(e){
-      sessionStorage.removeItem('ekisha_studio_token');
-    }
+    } catch(e){ sessionStorage.removeItem('ekisha_studio_token'); }
   }
 };
 
-function authHeaders(extra){
-  return Object.assign({ "Authorization": `Bearer ${authToken}` }, extra || {});
-}
+function authHeaders(extra){ return Object.assign({ "Authorization": `Bearer ${authToken}` }, extra || {}); }
 
 async function handleAuthFailure(resp){
   if(resp.status === 401 || resp.status === 403){
@@ -426,14 +340,9 @@ async function handleAuthFailure(resp){
   return false;
 }
 
-document.getElementById("photo-input").addEventListener("change", (e) => {
-  selectedPhoto = e.target.files[0];
-  document.getElementById("upload-box").textContent = selectedPhoto ? selectedPhoto.name : "Drop a photo, or click to browse";
-});
-
 function statusMeta(status){
   if(status === "published") return {label:"Published", cls:"status-published"};
-  if(status === "draft") return {label:"Draft", cls:"status-draft"};
+  if(status === "scheduled") return {label:"Scheduled", cls:"status-scheduled"};
   return {label:"Ready to publish", cls:"status-ready"};
 }
 
@@ -465,6 +374,8 @@ function renderQueue(){
     const videoThumb = p.video_preview_url
       ? `<a href="${p.video_preview_url}" target="_blank" class="thumb" style="text-decoration:none;"><i class="icon">▶</i></a>`
       : `<div class="thumb"><i class="icon">▶</i></div>`;
+    const scheduledNote = p.status === 'scheduled' && p.scheduled_time
+      ? `<div style="font-family:var(--font-mono);font-size:10.5px;color:var(--ink-soft);margin-top:4px;">for ${new Date(p.scheduled_time).toLocaleString()}</div>` : '';
     card.innerHTML = `
       <div class="tag-notch"></div>
       <div class="tag-head">
@@ -479,22 +390,53 @@ function renderQueue(){
         <div class="thumb-row">
           ${videoThumb}
           <div style="flex:1;min-width:0;">
-            <div class="voice-line">voice · ${p.voice}</div>
+            <div class="voice-line">${p.voice ? 'voice · ' + p.voice : 'no voiceover'}</div>
             <div class="caption-preview" id="preview-${i}">${(p.caption||"").replace(/\n/g,' ')}</div>
           </div>
         </div>
         <textarea class="caption-edit" style="display:none;" id="edit-${i}">${p.caption||""}</textarea>
         <div class="tag-actions">
-          <button class="btn btn-publish" ${p.status === 'published' ? 'disabled' : ''} onclick="handlePublish('${p.slug}', ${i})">
-            ${p.status === 'published' ? 'Published' : 'Publish to Instagram'}
+          <button class="btn btn-publish" ${p.status !== 'ready' ? 'disabled' : ''} onclick="handlePublish('${p.slug}', ${i})">
+            ${p.status === 'published' ? 'Published' : p.status === 'scheduled' ? 'Scheduled' : 'Publish to Instagram'}
           </button>
           <button class="btn btn-ghost" onclick="toggleEdit(${i}, '${p.slug}')">Edit</button>
+          ${p.status === 'ready' ? `<button class="btn btn-ghost" onclick="toggleSchedule(${i})">Schedule</button>` : ''}
+        </div>
+        ${scheduledNote}
+        <div class="schedule-row" id="schedule-row-${i}">
+          <input type="datetime-local" id="schedule-input-${i}">
+          <button class="btn btn-publish" style="flex:none;" onclick="handleSchedule('${p.slug}', ${i})">Set</button>
         </div>
       </div>
     `;
     grid.appendChild(card);
   });
   document.getElementById("queue-count").textContent = queueData.length + " items";
+}
+
+function toggleSchedule(i){
+  document.getElementById(`schedule-row-${i}`).classList.toggle("open");
+}
+
+async function handleSchedule(slug, i){
+  const input = document.getElementById(`schedule-input-${i}`);
+  if(!input.value){ showToast("Pick a date and time first"); return; }
+  const isoTime = new Date(input.value).toISOString();
+  try {
+    const resp = await fetch(`${API_BASE}/publish`, {
+      method: "POST",
+      headers: authHeaders({"Content-Type": "application/json"}),
+      body: JSON.stringify({slug, scheduled_time: isoTime}),
+    });
+    if(await handleAuthFailure(resp)) return;
+    const body = await resp.json();
+    if(!resp.ok) throw new Error(body.detail || `Server returned ${resp.status}`);
+    queueData[i] = body;
+    renderQueue();
+    showToast(`Scheduled "${body.name}" for ${new Date(body.scheduled_time).toLocaleString()}`);
+  } catch(err){
+    showToast(`Couldn't schedule: ${err.message}`);
+  }
 }
 
 async function toggleEdit(i, slug){
@@ -505,34 +447,26 @@ async function toggleEdit(i, slug){
     const newCaption = edit.value;
     try {
       const resp = await fetch(`${API_BASE}/queue/${slug}/caption`, {
-        method: "PATCH",
-        headers: authHeaders({"Content-Type": "application/json"}),
-        body: JSON.stringify({caption: newCaption}),
+        method: "PATCH", headers: authHeaders({"Content-Type": "application/json"}), body: JSON.stringify({caption: newCaption}),
       });
       if(await handleAuthFailure(resp)) return;
       if(!resp.ok) throw new Error(`Server returned ${resp.status}`);
       queueData[i].caption = newCaption;
       preview.textContent = newCaption.replace(/\n/g,' ');
       showToast("Caption updated");
-    } catch(err){
-      showToast(`Couldn't save caption: ${err.message}`);
-    }
-    edit.style.display = "none";
-    preview.style.display = "-webkit-box";
+    } catch(err){ showToast(`Couldn't save caption: ${err.message}`); }
+    edit.style.display = "none"; preview.style.display = "-webkit-box";
   } else {
-    edit.style.display = "block";
-    preview.style.display = "none";
+    edit.style.display = "block"; preview.style.display = "none";
   }
 }
 
 async function handlePublish(slug, i){
-  if(queueData[i].status === "published") return;
+  if(queueData[i].status !== "ready") return;
   showToast("Publishing to Instagram — this can take up to a minute…");
   try {
     const resp = await fetch(`${API_BASE}/publish`, {
-      method: "POST",
-      headers: authHeaders({"Content-Type": "application/json"}),
-      body: JSON.stringify({slug}),
+      method: "POST", headers: authHeaders({"Content-Type": "application/json"}), body: JSON.stringify({slug}),
     });
     if(await handleAuthFailure(resp)) return;
     const body = await resp.json();
@@ -540,9 +474,7 @@ async function handlePublish(slug, i){
     queueData[i] = body;
     renderQueue();
     showToast(`Published "${body.name}" to Instagram`);
-  } catch(err){
-    showToast(`Publish failed: ${err.message}`);
-  }
+  } catch(err){ showToast(`Publish failed: ${err.message}`); }
 }
 
 async function handleGenerate(){
@@ -555,11 +487,12 @@ async function handleGenerate(){
   if(!selectedPhoto){ showToast("Add a product photo first"); return; }
   if(!name){ showToast("Add a product name first"); return; }
   if(!price){ showToast("Add a price first"); return; }
+  if(visualSource === "upload" && !selectedExistingMedia){ showToast("Upload your existing photo/video first"); return; }
 
   const btn = document.getElementById("generate-btn");
   btn.disabled = true;
-  btn.textContent = "Generating… (1-5 min)";
-  showToast("Generation started — content, voiceover, video, and assembly running now");
+  btn.textContent = "Generating…";
+  showToast("Generation started — this can take a few minutes");
 
   const formData = new FormData();
   formData.append("image", selectedPhoto);
@@ -568,6 +501,13 @@ async function handleGenerate(){
   formData.append("price", price);
   formData.append("fabric", fabric);
   formData.append("voice", voice);
+  formData.append("content_type", contentType);
+  formData.append("visual_source", visualSource);
+  formData.append("want_voiceover", contentType === "video" ? wantVoiceover : false);
+  formData.append("want_captions", contentType === "video" ? wantCaptions : false);
+  if(visualSource === "upload" && selectedExistingMedia){
+    formData.append("existing_media", selectedExistingMedia);
+  }
 
   try {
     const resp = await fetch(`${API_BASE}/generate`, { method: "POST", headers: authHeaders(), body: formData });
@@ -590,7 +530,7 @@ function showToast(text){
   document.getElementById("toast-text").textContent = text;
   toast.classList.add("show");
   clearTimeout(window._toastTimer);
-  window._toastTimer = setTimeout(() => toast.classList.remove("show"), 4000);
+  window._toastTimer = setTimeout(() => toast.classList.remove("show"), 4500);
 }
 
 document.querySelectorAll("nav button").forEach(btn => {
