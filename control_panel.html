@@ -86,6 +86,20 @@
   .pill-hint{font-size:11px;color:var(--ink-soft);margin-top:6px;}
   .subfield{display:none;margin-top:12px;}
   .subfield.open{display:block;}
+
+  /* Scene + model pickers */
+  .model-gallery{display:flex;gap:12px;flex-wrap:wrap;align-items:flex-start;}
+  .model-thumb{width:64px;text-align:center;cursor:pointer;}
+  .model-thumb .circle{width:64px;height:64px;border-radius:50%;object-fit:cover;border:2px solid var(--line);display:block;background:var(--line);}
+  .model-thumb.selected .circle{border-color:var(--sage);border-width:3px;}
+  .model-thumb .label{font-size:10px;margin-top:5px;color:var(--ink-soft);max-width:64px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+  .model-thumb-none{width:64px;height:64px;border-radius:50%;border:2px solid var(--line);display:flex;align-items:center;justify-content:center;font-size:10px;color:var(--ink-soft);text-align:center;line-height:1.2;padding:4px;box-sizing:border-box;}
+  .model-thumb.selected .model-thumb-none{border-color:var(--sage);border-width:3px;}
+  .model-thumb-add{width:64px;height:64px;border-radius:50%;border:1.5px dashed var(--line);display:flex;align-items:center;justify-content:center;font-size:22px;color:var(--ink-soft);}
+  .model-thumb-add:hover{border-color:var(--sage);color:var(--sage);}
+  .add-model-form{display:none;margin-top:12px;padding:14px;border:1px solid var(--line);border-radius:8px;background:var(--white);}
+  .add-model-form.open{display:block;}
+  .add-model-form input[type=text]{margin-bottom:8px;}
   #toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(20px);background:var(--ink);color:#fff;font-size:13px;font-family:var(--font-sans);padding:11px 18px;border-radius:8px;opacity:0;pointer-events:none;transition:opacity .2s ease, transform .2s ease;display:flex;align-items:center;gap:8px;max-width:420px;}
   #toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
   #toast .dot{width:6px;height:6px;border-radius:50%;background:#8FC98A;flex-shrink:0;}
@@ -188,6 +202,20 @@
         <div class="subfield" id="existing-media-field">
           <input type="file" id="existing-media-input" accept="image/*,video/*" style="display:none;">
           <div class="upload-box" id="existing-media-box" onclick="document.getElementById('existing-media-input').click()">Upload your photo or video</div>
+        </div>
+      </div>
+      <div class="field" id="scene-model-field">
+        <label>Scene (optional — a real location + fabric/pose motion, replaces the default direction)</label>
+        <div class="pill-group" id="pills-scene"></div>
+        <p class="pill-hint" id="scene-description"></p>
+
+        <label style="margin-top:18px;">Model face (optional — swap the garment onto a different model)</label>
+        <div class="model-gallery" id="model-gallery"></div>
+        <div class="add-model-form" id="add-model-form">
+          <input type="text" id="new-model-name" placeholder="Model name (e.g. Priya)">
+          <input type="file" id="new-model-photo" accept="image/*">
+          <button type="button" class="btn btn-secondary" onclick="handleAddModel()">Add to roster</button>
+          <button type="button" class="btn btn-ghost" onclick="document.getElementById('add-model-form').classList.remove('open')">Cancel</button>
         </div>
       </div>
       <div class="field" id="video-options-field">
@@ -316,6 +344,10 @@ let wantCaptions = true;
 let bulkRowCount = 0;
 let pendingReviewSlug = null;
 let pendingReviewContent = null;
+let scenesList = [];
+let modelsList = [];
+let selectedSceneId = null;
+let selectedModelId = null;
 
 function setupPillGroup(containerId, onSelect){
   const container = document.getElementById(containerId);
@@ -336,6 +368,7 @@ setupPillGroup("pills-content-type", (val) => {
 setupPillGroup("pills-visual-source", (val) => {
   visualSource = val;
   document.getElementById("existing-media-field").classList.toggle("open", val === "upload");
+  document.getElementById("scene-model-field").style.display = val === "generate" ? "block" : "none";
 });
 document.getElementById("pill-voiceover").addEventListener("click", function(){
   wantVoiceover = !wantVoiceover;
@@ -376,6 +409,11 @@ function duplicateAsTemplate(i){
   document.getElementById('gen-fabric').value = p.fabric || "Pure Cotton";
   if(p.voice) document.getElementById('voice-select').value = p.voice;
 
+  selectedSceneId = p.scene_id || null;
+  selectedModelId = p.model_id || null;
+  renderScenePicker();
+  renderModelGallery();
+
   showToast("Settings copied — add a new photo, name, and price to continue");
 }
 
@@ -388,6 +426,7 @@ function handleCredentialResponse(response){
   document.getElementById('main-app').classList.add('unlocked');
   sessionStorage.setItem('ekisha_studio_token', authToken);
   fetchQueue();
+  loadScenesAndModels();
 }
 function signOut(){
   authToken = null;
@@ -411,6 +450,7 @@ window.onload = function(){
       document.getElementById('signin-screen').classList.add('hidden');
       document.getElementById('main-app').classList.add('unlocked');
       fetchQueue();
+      loadScenesAndModels();
     } catch(e){ sessionStorage.removeItem('ekisha_studio_token'); }
   }
   addBulkRow(); // start bulk view with one row
@@ -432,6 +472,105 @@ function statusMeta(status){
   if(status === "scheduled") return {label:"Scheduled", cls:"status-scheduled"};
   if(status === "draft") return {label:"Draft", cls:"status-draft"};
   return {label:"Ready to publish", cls:"status-ready"};
+}
+
+async function loadScenesAndModels(){
+  try {
+    const [scenesResp, modelsResp] = await Promise.all([
+      fetch(`${API_BASE}/scenes`, { headers: authHeaders() }),
+      fetch(`${API_BASE}/models`, { headers: authHeaders() }),
+    ]);
+    if(scenesResp.ok) scenesList = (await scenesResp.json()).scenes || [];
+    if(modelsResp.ok) modelsList = (await modelsResp.json()).models || [];
+  } catch(err){
+    console.error("Couldn't load scenes/models:", err);
+  }
+  renderScenePicker();
+  renderModelGallery();
+}
+
+function renderScenePicker(){
+  const container = document.getElementById("pills-scene");
+  container.innerHTML = "";
+  const noneBtn = document.createElement("button");
+  noneBtn.type = "button";
+  noneBtn.className = "pill" + (selectedSceneId === null ? " selected" : "");
+  noneBtn.textContent = "Default (AI-written direction)";
+  noneBtn.onclick = () => selectScene(null);
+  container.appendChild(noneBtn);
+
+  scenesList.forEach(scene => {
+    const btn = document.createElement("button");
+    btn.type = "button";
+    btn.className = "pill" + (selectedSceneId === scene.id ? " selected" : "");
+    btn.textContent = scene.name;
+    btn.onclick = () => selectScene(scene.id);
+    container.appendChild(btn);
+  });
+  updateSceneDescription();
+}
+
+function selectScene(sceneId){
+  selectedSceneId = sceneId;
+  renderScenePicker();
+}
+
+function updateSceneDescription(){
+  const desc = document.getElementById("scene-description");
+  const scene = scenesList.find(s => s.id === selectedSceneId);
+  desc.textContent = scene ? scene.description : "";
+}
+
+function renderModelGallery(){
+  const container = document.getElementById("model-gallery");
+  container.innerHTML = "";
+
+  const noneDiv = document.createElement("div");
+  noneDiv.className = "model-thumb" + (selectedModelId === null ? " selected" : "");
+  noneDiv.innerHTML = `<div class="model-thumb-none">Original photo</div>`;
+  noneDiv.onclick = () => { selectedModelId = null; renderModelGallery(); };
+  container.appendChild(noneDiv);
+
+  modelsList.forEach(model => {
+    const div = document.createElement("div");
+    div.className = "model-thumb" + (selectedModelId === model.id ? " selected" : "");
+    div.innerHTML = `<img class="circle" src="${model.preview_url || ''}"><div class="label">${model.name}</div>`;
+    div.onclick = () => { selectedModelId = model.id; renderModelGallery(); };
+    container.appendChild(div);
+  });
+
+  const addDiv = document.createElement("div");
+  addDiv.className = "model-thumb";
+  addDiv.innerHTML = `<div class="model-thumb-add">+</div><div class="label">Add new</div>`;
+  addDiv.onclick = () => document.getElementById("add-model-form").classList.add("open");
+  container.appendChild(addDiv);
+}
+
+async function handleAddModel(){
+  const name = document.getElementById("new-model-name").value.trim();
+  const fileInput = document.getElementById("new-model-photo");
+  if(!name){ showToast("Give this model a name first"); return; }
+  if(!fileInput.files[0]){ showToast("Choose a photo first"); return; }
+
+  const formData = new FormData();
+  formData.append("photo", fileInput.files[0]);
+  formData.append("name", name);
+
+  try {
+    const resp = await fetch(`${API_BASE}/models`, { method: "POST", headers: authHeaders(), body: formData });
+    if(await handleAuthFailure(resp)) return;
+    const model = await resp.json();
+    if(!resp.ok) throw new Error(model.detail || `Server returned ${resp.status}`);
+    modelsList.unshift(model);
+    selectedModelId = model.id;
+    document.getElementById("add-model-form").classList.remove("open");
+    document.getElementById("new-model-name").value = "";
+    fileInput.value = "";
+    renderModelGallery();
+    showToast(`Added "${model.name}" to your model roster`);
+  } catch(err){
+    showToast(`Couldn't add model: ${err.message}`);
+  }
 }
 
 async function fetchQueue(){
@@ -707,6 +846,8 @@ function buildGenerateFormData(name, price){
   formData.append("visual_source", visualSource);
   formData.append("want_voiceover", contentType === "video" ? wantVoiceover : false);
   formData.append("want_captions", contentType === "video" ? wantCaptions : false);
+  if(visualSource === "generate" && selectedSceneId) formData.append("scene_id", selectedSceneId);
+  if(visualSource === "generate" && selectedModelId) formData.append("model_id", selectedModelId);
   if(visualSource === "upload" && selectedExistingMedia) formData.append("existing_media", selectedExistingMedia);
   return formData;
 }
