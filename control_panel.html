@@ -205,9 +205,17 @@
         </div>
       </div>
       <div class="field" id="scene-model-field">
-        <label>Scene (optional — a real location + fabric/pose motion, replaces the default direction)</label>
+        <label>Scene (optional — pick one or more; each adds a real location + fabric/pose motion; selecting several generates a separate variant per scene)</label>
         <div class="pill-group" id="pills-scene"></div>
         <p class="pill-hint" id="scene-description"></p>
+
+        <label style="margin-top:18px;">Video length</label>
+        <div class="pill-group" id="pills-duration">
+          <button type="button" class="pill selected" data-value="10">10s</button>
+          <button type="button" class="pill" data-value="15">15s</button>
+          <button type="button" class="pill" data-value="20">20s</button>
+          <button type="button" class="pill" data-value="30">30s</button>
+        </div>
 
         <label style="margin-top:18px;">Model face (optional — swap the garment onto a different model)</label>
         <div class="model-gallery" id="model-gallery"></div>
@@ -346,7 +354,8 @@ let pendingReviewSlug = null;
 let pendingReviewContent = null;
 let scenesList = [];
 let modelsList = [];
-let selectedSceneId = null;
+let selectedSceneIds = [];
+let selectedDuration = 10;
 let selectedModelId = null;
 
 function setupPillGroup(containerId, onSelect){
@@ -369,6 +378,9 @@ setupPillGroup("pills-visual-source", (val) => {
   visualSource = val;
   document.getElementById("existing-media-field").classList.toggle("open", val === "upload");
   document.getElementById("scene-model-field").style.display = val === "generate" ? "block" : "none";
+});
+setupPillGroup("pills-duration", (val) => {
+  selectedDuration = parseInt(val, 10);
 });
 document.getElementById("pill-voiceover").addEventListener("click", function(){
   wantVoiceover = !wantVoiceover;
@@ -409,8 +421,15 @@ function duplicateAsTemplate(i){
   document.getElementById('gen-fabric').value = p.fabric || "Pure Cotton";
   if(p.voice) document.getElementById('voice-select').value = p.voice;
 
-  selectedSceneId = p.scene_id || null;
+  // Older single-scene items stored scene_id; newer multi-scene items don't
+  // persist scene_ids per variant (each variant already reflects one scene),
+  // so duplicate carries over that one scene if present.
+  selectedSceneIds = p.scene_id ? [p.scene_id] : [];
   selectedModelId = p.model_id || null;
+  selectedDuration = p.video_length_seconds || 10;
+  document.querySelectorAll('#pills-duration .pill').forEach(btn => {
+    btn.classList.toggle('selected', parseInt(btn.dataset.value, 10) === selectedDuration);
+  });
   renderScenePicker();
   renderModelGallery();
 
@@ -492,33 +511,36 @@ async function loadScenesAndModels(){
 function renderScenePicker(){
   const container = document.getElementById("pills-scene");
   container.innerHTML = "";
-  const noneBtn = document.createElement("button");
-  noneBtn.type = "button";
-  noneBtn.className = "pill" + (selectedSceneId === null ? " selected" : "");
-  noneBtn.textContent = "Default (AI-written direction)";
-  noneBtn.onclick = () => selectScene(null);
-  container.appendChild(noneBtn);
 
   scenesList.forEach(scene => {
     const btn = document.createElement("button");
     btn.type = "button";
-    btn.className = "pill" + (selectedSceneId === scene.id ? " selected" : "");
+    btn.className = "pill" + (selectedSceneIds.includes(scene.id) ? " selected" : "");
     btn.textContent = scene.name;
-    btn.onclick = () => selectScene(scene.id);
+    btn.title = scene.description;
+    btn.onclick = () => toggleScene(scene.id);
     container.appendChild(btn);
   });
   updateSceneDescription();
 }
 
-function selectScene(sceneId){
-  selectedSceneId = sceneId;
+function toggleScene(sceneId){
+  const idx = selectedSceneIds.indexOf(sceneId);
+  if(idx === -1) selectedSceneIds.push(sceneId);
+  else selectedSceneIds.splice(idx, 1);
   renderScenePicker();
 }
 
 function updateSceneDescription(){
   const desc = document.getElementById("scene-description");
-  const scene = scenesList.find(s => s.id === selectedSceneId);
-  desc.textContent = scene ? scene.description : "";
+  if(selectedSceneIds.length === 0){
+    desc.textContent = "No scene selected — uses the AI-written camera direction, one video.";
+  } else if(selectedSceneIds.length === 1){
+    const scene = scenesList.find(s => s.id === selectedSceneIds[0]);
+    desc.textContent = scene ? scene.description : "";
+  } else {
+    desc.textContent = `${selectedSceneIds.length} scenes selected — will generate ${selectedSceneIds.length} separate video variants, one per scene.`;
+  }
 }
 
 function renderModelGallery(){
@@ -791,9 +813,9 @@ async function handleGenerateFromDraft(slug, i){
     if(await handleAuthFailure(resp)) return;
     const body = await resp.json();
     if(!resp.ok) throw new Error(body.detail || body.error || `Server returned ${resp.status}`);
-    queueData[i] = body;
-    renderQueue();
-    showToast(`"${body.name}" is ready for review`);
+    const variants = body.variants || [];
+    showToast(variants.length > 1 ? `${variants.length} scene variants are ready for review` : `"${variants[0]?.name}" is ready for review`);
+    fetchQueue(); // a multi-scene draft can expand into several new items, safest to just refetch
   } catch(err){ showToast(`Generation failed: ${err.message}`); }
 }
 
@@ -846,7 +868,8 @@ function buildGenerateFormData(name, price){
   formData.append("visual_source", visualSource);
   formData.append("want_voiceover", contentType === "video" ? wantVoiceover : false);
   formData.append("want_captions", contentType === "video" ? wantCaptions : false);
-  if(visualSource === "generate" && selectedSceneId) formData.append("scene_id", selectedSceneId);
+  formData.append("video_length_seconds", contentType === "video" ? selectedDuration : 10);
+  if(visualSource === "generate" && selectedSceneIds.length > 0) formData.append("scene_ids", selectedSceneIds.join(","));
   if(visualSource === "generate" && selectedModelId) formData.append("model_id", selectedModelId);
   if(visualSource === "upload" && selectedExistingMedia) formData.append("existing_media", selectedExistingMedia);
   return formData;
@@ -939,9 +962,10 @@ async function handleContinueGenerate(){
     if(await handleAuthFailure(resp)) return;
     const body = await resp.json();
     if(!resp.ok) throw new Error(body.detail || body.error || `Server returned ${resp.status}`);
+    const variants = body.variants || [];
     document.getElementById("review-overlay").classList.remove("open");
     pendingReviewSlug = null; pendingReviewContent = null;
-    showToast(`"${body.name}" is ready for review`);
+    showToast(variants.length > 1 ? `${variants.length} scene variants are ready for review` : `"${variants[0]?.name}" is ready for review`);
     document.querySelector('nav button[data-view="queue"]').click();
     fetchQueue();
   } catch(err){
