@@ -476,11 +476,11 @@ window.onload = function(){
 };
 
 function authHeaders(extra){ return Object.assign({ "Authorization": `Bearer ${authToken}` }, extra || {}); }
-async function handleAuthFailure(resp){
+async function handleAuthFailure(resp, customMessage){
   if(resp.status === 401 || resp.status === 403){
     const body = await resp.json().catch(() => ({}));
     signOut();
-    document.getElementById('signin-error').textContent = body.detail || "Access denied";
+    document.getElementById('signin-error').textContent = customMessage || body.detail || "Access denied";
     return true;
   }
   return false;
@@ -595,12 +595,12 @@ async function handleAddModel(){
   }
 }
 
-async function fetchQueue(){
+async function fetchQueue(authFailureMessage){
   const grid = document.getElementById("queue-grid");
   grid.innerHTML = '<p style="color:var(--ink-soft);font-size:13px;">Loading…</p>';
   try {
     const resp = await fetch(`${API_BASE}/queue`, { headers: authHeaders() });
-    if(await handleAuthFailure(resp)) return;
+    if(await handleAuthFailure(resp, authFailureMessage)) return;
     if(!resp.ok) throw new Error(`Server returned ${resp.status}`);
     const data = await resp.json();
     queueData = data.items || [];
@@ -963,11 +963,17 @@ async function handleContinueGenerate(){
     const body = await resp.json();
     if(!resp.ok) throw new Error(body.detail || body.error || `Server returned ${resp.status}`);
     const variants = body.variants || [];
+    const successMsg = variants.length > 1 ? `${variants.length} scene variants are ready` : `"${variants[0]?.name}" is ready`;
     document.getElementById("review-overlay").classList.remove("open");
     pendingReviewSlug = null; pendingReviewContent = null;
-    showToast(variants.length > 1 ? `${variants.length} scene variants are ready for review` : `"${variants[0]?.name}" is ready for review`);
+    showToast(`${successMsg} for review`);
     document.querySelector('nav button[data-view="queue"]').click();
-    fetchQueue();
+    // The generation itself already succeeded (we're past this point). A
+    // long multi-scene generation can outlast the ~1hr Google sign-in
+    // token, so this refresh can occasionally hit an expired session —
+    // if so, make clear the work is safe and just needs a fresh sign-in
+    // to view, rather than looking like the whole thing failed.
+    fetchQueue(`${successMsg}! Your session expired while it was generating — sign in again to see it in your queue.`);
   } catch(err){
     showToast(`Generation failed: ${err.message}`);
   } finally {
